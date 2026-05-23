@@ -60,8 +60,8 @@
     Static hostname: deep-cp-01
     Icon name: computer-vm
     Chassis: vm 🖴
-    Machine ID: cbf35318e4a2480b93457f4f73b71c9e
-    Boot ID: a702cb11060e4450ae6e4d4b5de04a11
+    Machine ID: 209934fd84394599bf0237beb6ca8e2c
+    Boot ID: 8e64b6ab243d4217a4d8f7ed786715c6
     Virtualization: kvm
     Operating System: Ubuntu 24.04.4 LTS                
     Kernel: Linux 6.8.0-117-generic
@@ -70,15 +70,15 @@
     Hardware Model: Ubuntu 24.04 PC _Q35 + ICH9, 2009_
     Firmware Version: 1.16.3-debian-1.16.3-2
     Firmware Date: Tue 2014-04-01
-    Firmware Age: 12y 1month 3w
+    Firmware Age: 12y 1month 3w 1d 
     ```
     deep-wrk-01
     ```
-    Static hostname: deep-cp-01
+    Static hostname: deep-wrk-01
     Icon name: computer-vm
     Chassis: vm 🖴
-    Machine ID: cbf35318e4a2480b93457f4f73b71c9e
-    Boot ID: 672641d8be8140a59c28d6b621a93409
+    Machine ID: b83ef4e8468d4841bdcad82c2079917e
+    Boot ID: 3c91a89dd44746f783135f952f92e386
     Virtualization: kvm
     Operating System: Ubuntu 24.04.4 LTS                
     Kernel: Linux 6.8.0-117-generic
@@ -87,15 +87,15 @@
     Hardware Model: Ubuntu 24.04 PC _Q35 + ICH9, 2009_
     Firmware Version: 1.16.3-debian-1.16.3-2
     Firmware Date: Tue 2014-04-01
-    Firmware Age: 12y 1month 3w
+    Firmware Age: 12y 1month 3w 1d
     ```
     deep-wrk-02
     ```
     Static hostname: deep-wrk-02
     Icon name: computer-vm
     Chassis: vm 🖴
-    Machine ID: cbf35318e4a2480b93457f4f73b71c9e
-    Boot ID: a417f5f70c0f41358a1dfe2b90c6fa21
+    Machine ID: c502c7bd481c4fddb64c21c4a1461dcc
+    Boot ID: a4e16e6178804a0e9ec8b91227f26056
     Virtualization: kvm
     Operating System: Ubuntu 24.04.4 LTS                
     Kernel: Linux 6.8.0-117-generic
@@ -104,7 +104,7 @@
     Hardware Model: Ubuntu 24.04 PC _Q35 + ICH9, 2009_
     Firmware Version: 1.16.3-debian-1.16.3-2
     Firmware Date: Tue 2014-04-01
-    Firmware Age: 12y 1month 3w
+    Firmware Age: 12y 1month 3w 1d
     ```        
 
 ### ip -br addr
