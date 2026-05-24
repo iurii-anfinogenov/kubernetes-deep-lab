@@ -54,11 +54,11 @@ q@control-plane-1:~$ hostnamectl
  Static hostname: control-plane-1
        Icon name: computer-vm
          Chassis: vm 🖴
-      Machine ID: 16d86c2827cc4841a90042b685de2412
-         Boot ID: 639e908226dd4b19bfa2f9d43f28d7ac
+      Machine ID: 9df59e63128748d9b00b26b788d1c911
+         Boot ID: 0b794a6712a84e1db313a0116827f6d9
   Virtualization: kvm
-Operating System: Ubuntu 24.04.3 LTS
-          Kernel: Linux 6.8.0-86-generic
+Operating System: Ubuntu 24.04.4 LTS
+          Kernel: Linux 6.8.0-117-generic
     Architecture: x86-64
  Hardware Vendor: QEMU
   Hardware Model: Standard PC _i440FX + PIIX, 1996_
@@ -70,11 +70,11 @@ q@worker-1:~$ hostnamectl
  Static hostname: worker-1
        Icon name: computer-vm
          Chassis: vm 🖴
-      Machine ID: 16d86c2827cc4841a90042b685de2412
-         Boot ID: c8593efe58bf455fa5b24fe979c1c305
+      Machine ID: cb22ade8f8284358a12b36610e98a446
+         Boot ID: 4f03d7690a2943ce9133adbf42e170f7
   Virtualization: kvm
-Operating System: Ubuntu 24.04.3 LTS
-          Kernel: Linux 6.8.0-86-generic
+Operating System: Ubuntu 24.04.4 LTS
+          Kernel: Linux 6.8.0-117-generic
     Architecture: x86-64
  Hardware Vendor: QEMU
   Hardware Model: Standard PC _i440FX + PIIX, 1996_
@@ -86,11 +86,11 @@ q@worker-2:~$ hostnamectl
  Static hostname: worker-2
        Icon name: computer-vm
          Chassis: vm 🖴
-      Machine ID: 16d86c2827cc4841a90042b685de2412
-         Boot ID: eda3eee8a1844d8aaf52b84252694bdc
+      Machine ID: 2973ed0ca33f46b0b711da9b4bd21681
+         Boot ID: f034224ba7164fd89c684dde19e16ee0
   Virtualization: kvm
-Operating System: Ubuntu 24.04.3 LTS
-          Kernel: Linux 6.8.0-86-generic
+Operating System: Ubuntu 24.04.4 LTS
+          Kernel: Linux 6.8.0-117-generic
     Architecture: x86-64
  Hardware Vendor: QEMU
   Hardware Model: Standard PC _i440FX + PIIX, 1996_
