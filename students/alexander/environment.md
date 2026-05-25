@@ -22,9 +22,9 @@
 
 | Node            | Role          | CPU |    RAM |  Disk | OS               | Hostname     | IP            |
 | --------------- | ------------- | --: | -----: | ----: | ---------------- | ------------ | ------------- |
-| control-plane-1 | control-plane |   2 | 1.6 GB | 40 GB | Ubuntu 26.04 LTS | ControlPlane | 192.168.1.101 |
-| worker-1        | worker        |   2 | 1.6 GB | 30 GB | Ubuntu 26.04 LTS | Worker1      | 192.168.1.93  |
-| worker-2        | worker        |   2 | 1.6 GB | 30 GB | Ubuntu 26.04 LTS | Worker2      | 192.168.1.103 |
+| control-plane-1 | control-plane |   2 | 1.6 GB | 40 GB | Ubuntu 24.04 LTS | ControlPlane | 192.168.1.15 |
+| worker-1        | worker        |   2 | 1.6 GB | 30 GB | Ubuntu 24.04 LTS | Worker1      | 192.168.1.16  |
+| worker-2        | worker        |   2 | 1.6 GB | 30 GB | Ubuntu 24.04 LTS | Worker2      | 192.168.1.17 |
 
 ## Network
 
@@ -48,7 +48,7 @@
 ### hostnamectl
 
 ```
-Ubuntu 26.04 LTS
+Ubuntu 24.04 LTS
 VirtualBox
 x86-64
 ```
@@ -56,9 +56,9 @@ x86-64
 ### ip -br addr
 
 ```
-Worker1: 192.168.1.93
-Worker2: 192.168.1.103
-ControlPlane: 192.168.1.101
+Worker1: 192.168.1.16
+Worker2: 192.168.1.17
+ControlPlane: 192.168.1.15
 ```
 
 ### free -h
