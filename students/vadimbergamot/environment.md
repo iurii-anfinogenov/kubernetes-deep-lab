@@ -112,31 +112,35 @@ eth0             UP             172.31.160.117/20 metric 100 fe80::215:5dff:fe01
 
 ### free -h
 
-    /home/bergamot# free -h
+  free -h
                total        used        free      shared  buff/cache   available
-Mem:           591Mi       407Mi       131Mi       3.7Mi       296Mi       183Mi
-Swap:          1.9Gi       268Ki       1.9Gi
+Mem:           7.8Gi       438Mi       7.4Gi       3.7Mi       183Mi       7.4Gi
+Swap:             0B          0B          0B
 
-/home/bergamot# free -h
-               total        used        free      shared  buff/cache   available
-Mem:           650Mi       261Mi       352Mi       3.0Mi       170Mi       388Mi
-Swap:          1.9Gi        35Mi       1.9Gi
 
-/home/bergamot# free -h
+root@kuber-worker-1:/# free -h
                total        used        free      shared  buff/cache   available
-Mem:           437Mi       296Mi       107Mi       3.1Mi       182Mi       140Mi
-Swap:          1.9Gi        25Mi       1.9Gi
+Mem:           3.8Gi       396Mi       2.8Gi       3.7Mi       889Mi       3.4Gi
+Swap:             0B          0B          0B
+
+
+ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       392Mi       3.1Gi       3.7Mi       599Mi       3.4Gi
+Swap:             0B          0B          0B
+
 
 
 ### df -h /
 
-    Filesystem                         Size  Used Avail Use% Mounted on
-tmpfs                              392M  784K  391M   1% /run
-/dev/mapper/ubuntu--vg-ubuntu--lv  9.8G  4.2G  5.1G  46% /
-tmpfs                              2.0G     0  2.0G   0% /dev/shm
+    :/home/bergamot# df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              596M  732K  595M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   17G  2.8G   13G  18% /
+tmpfs                              3.0G     0  3.0G   0% /dev/shm
 tmpfs                              5.0M     0  5.0M   0% /run/lock
-/dev/sda2                          1.7G  103M  1.5G   7% /boot
-tmpfs                              392M   12K  392M   1% /run/user/1000
+/dev/sda2                          2.0G  103M  1.7G   6% /boot
+tmpfs                              596M   12K  596M   1% /run/user/1000
 
 Filesystem                         Size  Used Avail Use% Mounted on
 tmpfs                              392M  784K  391M   1% /run
@@ -160,7 +164,7 @@ tmpfs                              392M   12K  392M   1% /run/user/1000
 nproc 
 2
 nproc
-1
+2
 
 ## Вопросы и риски
 
