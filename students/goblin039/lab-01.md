@@ -15,7 +15,7 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 
 | Lab | Status | PR | Notes |
 |---|---|---|---|
-| Lab 00 - Environment Validation | finish |  |  |
+| Lab 00 - Environment Validation | Done |  |  |
 
 ## Lab 01 - Node Baseline
 
@@ -25,7 +25,7 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 
 ### Цель
 
-Подготавливка Linux nodes к установке Kubernetes.
+Подготовка Linux nodes к установке Kubernetes.
 
 ### Что было сделано
 
@@ -37,7 +37,6 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 - Проверка node-to-node L3 connectivity
 - Проверка swap
 - Kernel modules и sysctl для Kubernetes networking
-- 
 
 ### Команды
 
@@ -607,24 +606,78 @@ systemctl list-unit-files | grep -E 'containerd|kubelet' || true
 
 ### Ключевые выводы команд
 
+На основе deep-cp-01, на остальных нодах вывод аналогичен.
+```
+root@deep-cp-01:/etc# free -h
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       402Mi       7.3Gi       4.7Mi       186Mi       7.3Gi
+Swap:             0B          0B          0B
+
+root@deep-cp-01:/etc# timedatectl
+               Local time: Mon 2026-05-25 20:50:02 UTC
+           Universal time: Mon 2026-05-25 20:50:02 UTC
+                 RTC time: Mon 2026-05-25 20:50:02
+                Time zone: Etc/UTC (UTC, +0000)
+System clock synchronized: yes
+              NTP service: active
+          RTC in local TZ: no
+root@deep-cp-01:/etc# systemctl is-active systemd-timesyncd
+active
+root@deep-cp-01:/etc# timedatectl show -p NTPSynchronized -p TimeUSec -p Timezone
+Timezone=Etc/UTC
+NTPSynchronized=yes
+TimeUSec=Mon 2026-05-25 20:50:16 UTC
+
+root@deep-cp-01:/etc/systemd/network# ping -c 3 192.168.100.51
+PING 192.168.100.51 (192.168.100.51) 56(84) bytes of data.
+64 bytes from 192.168.100.51: icmp_seq=1 ttl=64 time=0.559 ms
+64 bytes from 192.168.100.51: icmp_seq=2 ttl=64 time=0.823 ms
+64 bytes from 192.168.100.51: icmp_seq=3 ttl=64 time=0.346 ms
+
+--- 192.168.100.51 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2088ms
+rtt min/avg/max/mdev = 0.346/0.576/0.823/0.195 ms
+
+root@deep-cp-01:/etc/systemd/network# ping -c 3 192.168.100.52
+PING 192.168.100.52 (192.168.100.52) 56(84) bytes of data.
+64 bytes from 192.168.100.52: icmp_seq=1 ttl=64 time=0.614 ms
+64 bytes from 192.168.100.52: icmp_seq=2 ttl=64 time=0.593 ms
+64 bytes from 192.168.100.52: icmp_seq=3 ttl=64 time=0.708 ms
+
+--- 192.168.100.52 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2027ms
+rtt min/avg/max/mdev = 0.593/0.638/0.708/0.050 ms
+
+root@deep-cp-01:/home/goblin# lsmod | grep -E 'br_netfilter|overlay'
+br_netfilter           32768  0
+bridge                425984  1 br_netfilter
+overlay               212992  0
+
+root@deep-cp-01:/home/goblin# sysctl net.bridge.bridge-nf-call-iptables
+net.bridge.bridge-nf-call-iptables = 1
+root@deep-cp-01:/home/goblin# sysctl net.bridge.bridge-nf-call-ip6tables
+net.bridge.bridge-nf-call-ip6tables = 1
+root@deep-cp-01:/home/goblin# sysctl net.ipv4.ip_forward
+net.ipv4.ip_forward = 1
+```
 
 ### Ошибки и диагностика
 
 | Симптом | Слой | Что проверил | Решение |
 |---|---|---|---|
-| вывод getent hosts "$(hostname)" |  |  |  удаление строки `Domains=local` из конфигурации сети |
+| вывод getent hosts "$(hostname)" содержит адрес ipv6 и указание домена local|  |  |  удаление строки `Domains=local` из конфигурации сети /etc/systemd/network/10-wired.network|
 
 ### Что стало понятнее
 
-- 
-- 
-- 
+- Варианты использования getent
+ 
 
 ### Вопросы
 
 - Прописал бы в hosts адеса и имена всех нод, что бы ноды видели друг-друга по имени.
 - Были слухи, что отключение свопа не обязятельно с 1.36 версии, но подтверждения не искал :)
-- 
+- Часть проверок пересекается с предыдущей лабой, часть повторяется в разных пунктах лабы, к примеру по swap
+- Не понятен смысл общего прогресса, на мой взгляд, переходить с следующей лабе имеет смысл только после завершения всего цикла по текущей.
 
 ### Статус
 
