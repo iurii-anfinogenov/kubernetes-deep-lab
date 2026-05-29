@@ -15,13 +15,13 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 
 | Lab | Status | PR | Notes |
 |---|---|---|---|
-| Lab 01 - Node Baseline | in-progress |  |  |
+| Lab 01 - Node Baseline | done |  |  |
 
 ## Lab 01 - Node Baseline
 
 ### Дата
 
-2026-01-27
+2026-05-27
 
 ### Цель
 
@@ -591,6 +591,12 @@ package manager readiness: OK
 clean nodes, no Kubernetes/runtime: OK
 ```
 
+### Ошибки и диагностика
+
+| Симптом | Слой | Что проверил | Решение |
+|---|---|---|---|
+| hostname раньше был 127.0.1.1 |  |  | прописал IPv4 node в рамках сети |
+
 ### Что стало понятнее
 
 - overlay - модуль ядра для ФС. Используется для container runtime. 
@@ -604,4 +610,4 @@ clean nodes, no Kubernetes/runtime: OK
 
 ### Статус
 
-not-started / in-progress / done / blocked
+done
