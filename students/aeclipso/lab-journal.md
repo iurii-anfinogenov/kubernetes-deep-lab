@@ -15,8 +15,9 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 
 | Lab | Status | PR | Notes |
 |---|---|---|---|
-| Lab 00 - Environment Validation | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/5 |  |
-| Lab 01 - Node Baseline          | in-progress| | |
+| Lab 00 - Environment Validation | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/5  |  |
+| Lab 01 - Node Baseline          | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/13 | |
+| Lab 02 - Container Runtime: containerd | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/16| |
 
 ## Шаблон записи по лабораторной
 
