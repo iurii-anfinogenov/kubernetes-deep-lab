@@ -16,7 +16,7 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 | Lab | Status | PR | Notes |
 |---|---|---|---|
 | Lab 00 - Environment Validation | done |  |  |
-| Lab 01 - Node Baseline | in-progress |  |  |
+| Lab 01 - Node Baseline | done |  |  |
 
 
 ## Lab 01 - Node Baseline
@@ -660,20 +660,51 @@ systemctl list-unit-files | grep -E 'containerd|kubelet' || true
 
 ```
 
+### Ключевые выводы команд
+
+```
+Серверы готовы к установке kubernetes.
+Есть сетевая связность, коррекно настроен DNS.
+Доступны репозитории для установки нужных компонентов.
+Установлены необходимые модули ядра и sysctl.
+
+lsmod | grep -E 'br_netfilter|overlay'
+br_netfilter           32768  0
+bridge                425984  1 br_netfilter
+overlay               212992  0
+
+sysctl net.bridge.bridge-nf-call-iptables
+net.bridge.bridge-nf-call-iptables = 1
+
+sysctl net.bridge.bridge-nf-call-ip6tables
+net.bridge.bridge-nf-call-ip6tables = 1
+
+sysctl net.ipv4.ip_forward
+net.ipv4.ip_forward = 1
+
+command -v containerd || true
+command -v runc || true
+command -v crictl || true
+command -v kubeadm || true
+command -v kubelet || true
+command -v kubectl || true
+
+dpkg -l | grep -E 'containerd|runc|kubeadm|kubelet|kubectl|kubernetes' || true
+
+systemctl list-unit-files | grep -E 'containerd|kubelet' || true
+```
+
 ### Ошибки и диагностика
 
 | Симптом | Слой | Что проверил | Решение |
 |---|---|---|---|
-|  |  |  |  |
+|  критичных ошибок не обнаружено |
 
 ### Что стало понятнее
 
 - Какие модули ядра нужны для kubernetes
+- Чистое состояние node перед kubeadm
 
 ### Вопросы
 
 - На данный момент все понятно
-
-### Статус
-
-not-started / in-progress / **done** / blocked
