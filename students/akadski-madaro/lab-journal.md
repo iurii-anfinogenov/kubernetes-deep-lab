@@ -2,18 +2,20 @@
 
 Lab journal - рабочий журнал участника Kubernetes Deep Lab.
 
+Он нужен, чтобы фиксировать прогресс, команды, выводы, ошибки, вопросы и выводы по каждой лабораторной.
+
 ## Участник
 
 | Поле | Значение |
 |---|---|
-| Имя | Игорь |
-| GitHub | https://github.com/g0dsha |
+| Имя |  |
+| GitHub |  |
 
 ## Общий прогресс
 
 | Lab | Status | PR | Notes |
 |---|---|---|---|
-| Lab 00 - Environment Validation | started |  |  |
+| Lab 00 - Environment Validation | not-started |  |  |
 
 ## Шаблон записи по лабораторной
 
