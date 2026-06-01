@@ -32,8 +32,7 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 ### Что было сделано
 
 - Подключение Kubernetes apt repository
-- 
-- 
+- установка пакетов kubelet kubeadm kubectl kubernetes-cni
 
 ### Команды
 
@@ -168,12 +167,6 @@ root@deep-cp-01:/home/goblin# crictl info | grep -E '"RuntimeReady"|"NetworkRead
 ### Что стало понятнее
 
 - доступ к репозитория kubernetes так и не появился :( 
-
-### Вопросы
-
-- 
-- 
-- 
 
 ### Статус
 
