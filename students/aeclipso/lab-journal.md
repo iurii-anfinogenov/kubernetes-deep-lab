@@ -19,7 +19,7 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 | Lab 01 - Node Baseline          | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/13 | |
 | Lab 02 - Container Runtime: containerd | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/16| |
 | Lab 03 - kubeadm prerequisites | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/25 | |
-| Lab 04 - kubeadm cluster bootstrap | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/27 | |
+
 
 ## Шаблон записи по лабораторной
 
