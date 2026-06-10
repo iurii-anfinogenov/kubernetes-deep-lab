@@ -1,22 +1,3 @@
-# Lab Journal
-
-Lab journal - рабочий журнал участника Kubernetes Deep Lab.
-
-Он нужен, чтобы фиксировать прогресс, команды, выводы, ошибки, вопросы и выводы по каждой лабораторной.
-
-## Участник
-
-| Поле | Значение |
-|---|---|
-| Имя | aeclipso |
-| GitHub | https://github.com/aeclipso/ |
-
-## Общий прогресс
-
-| Lab | Status | PR | Notes |
-|---|---|---|---|
-| Lab 02 - Container Runtime: containerd | done |  |  |
-
 # Lab 02 - Container Runtime: containerd
 
 ### Дата
