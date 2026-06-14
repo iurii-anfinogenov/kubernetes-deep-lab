@@ -83,15 +83,17 @@
 
 Выполнить на каждой VM и вставить вывод в environment.md:
 
-    hostnamectl
+```sh
+hostnamectl
 
-    ip -br addr
+ip -br addr
 
-    free -h
+free -h
 
-    df -h /
+df -h /
 
-    nproc
+nproc
+```
 
 ## Критерий выполнения
 
