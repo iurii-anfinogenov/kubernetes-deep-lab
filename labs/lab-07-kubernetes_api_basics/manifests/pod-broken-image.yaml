@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-image-pod
+  namespace: kdl-lab07
+  labels:
+    app.kubernetes.io/name: broken-image
+    app.kubernetes.io/part-of: kubernetes-deep-lab
+    kdl/lab: "07"
+    kdl/component: pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx:this-tag-does-not-exist
+      ports:
+        - containerPort: 80

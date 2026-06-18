@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: labels-nginx-a
+  namespace: kdl-lab07
+  labels:
+    app: nginx
+    environment: lab
+    tier: frontend
+    track: stable
+    kdl/lab: "07"
+    kdl/component: labels
+  annotations:
+    kdl/description: "First nginx Pod for labels and selectors practice"
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.27.5
+      ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: labels-nginx-b
+  namespace: kdl-lab07
+  labels:
+    app: nginx
+    environment: lab
+    tier: frontend
+    track: canary
+    kdl/lab: "07"
+    kdl/component: labels
+  annotations:
+    kdl/description: "Second nginx Pod for labels and selectors practice"
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.27.5
+      ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: labels-busybox-a
+  namespace: kdl-lab07
+  labels:
+    app: busybox
+    environment: lab
+    tier: tools
+    track: stable
+    kdl/lab: "07"
+    kdl/component: labels
+  annotations:
+    kdl/description: "BusyBox Pod for selectors practice"
+spec:
+  containers:
+    - name: busybox
+      image: busybox:1.37.0
+      command: ["sh", "-c", "sleep 3600"]
