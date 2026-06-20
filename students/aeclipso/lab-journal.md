@@ -21,6 +21,7 @@ Lab journal - рабочий журнал участника Kubernetes Deep Lab
 | Lab 03 - kubeadm prerequisites | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/25 | |
 | Lab 04 - kubeadm cluster bootstrap | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/27 | |
 | Lab 05 - CNI bootstrap with Calico | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/28 | |
+| Lab 06 - Разбор kubeadm-кластера после установки | done | https://github.com/iurii-anfinogenov/kubernetes-deep-lab/pull/33 | |
 
 
 ## Шаблон записи по лабораторной
