@@ -55,6 +55,20 @@ Deployment controller
 
 То есть Deployment - это не "контейнер" и не "виртуальная машина". Это запись в Kubernetes API, на которую реагирует контроллер.
 
+## Как думать о Deployment как инженер
+
+Когда ты читаешь Deployment manifest, не пытайся сразу запомнить все поля. Читай его как ответы на пять инженерных вопросов:
+
+| Вопрос | Где смотреть |
+|---|---|
+| Что за приложение мы запускаем? | `metadata.name`, `metadata.labels` |
+| Сколько экземпляров нужно? | `spec.replicas` |
+| Какими Pod управляет Deployment? | `spec.selector.matchLabels` |
+| Как создавать новые Pod? | `spec.template` |
+| Как обновлять приложение? | `spec.strategy`, rollout status, ReplicaSet history |
+
+Это очень практичная привычка. В реальной работе Deployment чаще всего диагностируют не "сверху вниз по YAML", а именно через эти вопросы.
+
 ## Зачем нужен Deployment
 
 `ReplicaSet` умеет поддерживать количество Pod. Например, если нужно 3 Pod, ReplicaSet будет следить, чтобы их было 3.
@@ -134,7 +148,7 @@ kubectl -n kdl-lab07 get all
 
 ## Manifest Deployment
 
-Создай файл:
+Открой файл. Если проходишь лабораторную руками с нуля, создай его:
 
 ```text
 labs/lab-07-kubernetes_api_basics/manifests/05-deployment-nginx.yaml
@@ -150,21 +164,32 @@ metadata:
   namespace: kdl-lab07
   labels:
     app.kubernetes.io/name: nginx
-    app.kubernetes.io/part-of: lab-07
+    app.kubernetes.io/part-of: kubernetes-deep-lab
     app.kubernetes.io/component: web
+    kdl/lab: "07"
+    kdl/component: deployment
 spec:
   replicas: 3
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: nginx
-      app.kubernetes.io/part-of: lab-07
-      app.kubernetes.io/component: web
+      kdl/component: deployment
   template:
     metadata:
       labels:
         app.kubernetes.io/name: nginx
-        app.kubernetes.io/part-of: lab-07
+        app.kubernetes.io/part-of: kubernetes-deep-lab
         app.kubernetes.io/component: web
+        kdl/lab: "07"
+        kdl/component: deployment
+        kdl/version: "v1"
     spec:
       containers:
         - name: nginx
@@ -172,6 +197,21 @@ spec:
           ports:
             - name: http
               containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
 ```
 
 ## Разбор manifest
@@ -209,13 +249,22 @@ metadata:
 ```yaml
 labels:
   app.kubernetes.io/name: nginx
-  app.kubernetes.io/part-of: lab-07
+  app.kubernetes.io/part-of: kubernetes-deep-lab
   app.kubernetes.io/component: web
+  kdl/lab: "07"
+  kdl/component: deployment
 ```
 
 Labels помогают находить и группировать объекты.
 
-В этом уроке мы используем recommended labels Kubernetes-стиля, чтобы сразу привыкать к понятной схеме маркировки.
+В этом уроке мы используем recommended labels Kubernetes-стиля и отдельные учебные labels `kdl/*`.
+
+Практический смысл:
+
+- `app.kubernetes.io/name: nginx` говорит, что это nginx;
+- `app.kubernetes.io/part-of: kubernetes-deep-lab` связывает объект с учебным проектом;
+- `kdl/lab: "07"` показывает номер лабораторной;
+- `kdl/component: deployment` отделяет Pod из этого урока от Pod и ReplicaSet из предыдущих частей.
 
 ### replicas
 
@@ -233,15 +282,16 @@ replicas: 3
 selector:
   matchLabels:
     app.kubernetes.io/name: nginx
-    app.kubernetes.io/part-of: lab-07
-    app.kubernetes.io/component: web
+    kdl/component: deployment
 ```
 
 Selector определяет, какими Pod управляет Deployment через ReplicaSet.
 
 Критически важно: selector должен совпадать с labels внутри `spec.template.metadata.labels`.
 
-Если selector и labels Pod template не совпадают, Deployment не сможет корректно управлять Pod.
+Точнее: все labels из `spec.selector.matchLabels` должны присутствовать в `spec.template.metadata.labels` с теми же значениями.
+
+Pod template может содержать дополнительные labels. Например, `kdl/version: "v1"` есть у Pod, но его нет в selector. Это сделано специально: version label можно менять при обновлении, а selector должен оставаться стабильным.
 
 Также selector у Deployment является важным полем, которое нельзя бездумно менять после создания объекта. В реальной эксплуатации изменение selector может привести к потере связи между контроллером и Pod.
 
@@ -252,8 +302,11 @@ template:
   metadata:
     labels:
       app.kubernetes.io/name: nginx
-      app.kubernetes.io/part-of: lab-07
+      app.kubernetes.io/part-of: kubernetes-deep-lab
       app.kubernetes.io/component: web
+      kdl/lab: "07"
+      kdl/component: deployment
+      kdl/version: "v1"
   spec:
     containers:
       - name: nginx
@@ -265,6 +318,72 @@ template:
 Deployment не хранит список конкретных Pod. Он хранит шаблон, по которому ReplicaSet создает Pod.
 
 Если изменить Pod template, например image, Kubernetes создаст новый ReplicaSet и начнет rollout.
+
+Важно: изменение `spec.replicas` не создает новый ReplicaSet, потому что template Pod не поменялся. А изменение `image`, labels внутри template, probes, env, command или resources обычно меняет Pod template и запускает rollout.
+
+### strategy
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+```
+
+`strategy` описывает, как Deployment будет менять старые Pod на новые.
+
+В этом уроке мы явно указали простые учебные значения:
+
+- `maxUnavailable: 1` - во время обновления можно временно иметь максимум на 1 доступный Pod меньше желаемого количества;
+- `maxSurge: 1` - во время обновления можно временно создать максимум на 1 Pod больше желаемого количества.
+
+Для `replicas: 3` это значит, что Kubernetes будет обновлять приложение постепенно, не удаляя сразу все Pod.
+
+### readinessProbe
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+```
+
+`readinessProbe` отвечает на вопрос: "Готов ли Pod принимать трафик?"
+
+Для Deployment это особенно важно. Rolling update должен считать новый Pod готовым только после того, как приложение реально отвечает. Без readinessProbe Kubernetes может слишком рано считать контейнер готовым, хотя приложение внутри еще не принимает запросы.
+
+### resources
+
+```yaml
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+```
+
+`requests` помогают scheduler выбрать node, где есть достаточно ресурсов. `limits` задают верхнюю границу потребления контейнера.
+
+Это не главная тема урока, но хорошая DevOps-привычка: даже учебный Deployment полезно писать так, чтобы он был похож на аккуратный production manifest.
+
+## Проверка структуры через kubectl explain
+
+Риск: LOW
+
+Перед применением полезно посмотреть схему объекта прямо из Kubernetes API:
+
+```bash
+kubectl explain deployment
+kubectl explain deployment.spec
+kubectl explain deployment.spec.selector
+kubectl explain deployment.spec.template
+kubectl explain deployment.spec.strategy
+```
+
+Главная задача здесь не выучить весь вывод, а увидеть, что Deployment действительно состоит из `replicas`, `selector`, `template` и `strategy`.
 
 ## Dry-run перед применением
 
@@ -283,6 +402,20 @@ deployment.apps/kdl-nginx-deployment created (server dry run)
 ```
 
 Если есть ошибка, не применяй manifest. Сначала нужно исправить YAML или схему объекта.
+
+## Просмотр изменений через diff
+
+Риск: LOW
+
+`kubectl diff` показывает, чем manifest отличается от live-состояния в API Server.
+
+```bash
+kubectl diff -f labs/lab-07-kubernetes_api_basics/manifests/05-deployment-nginx.yaml
+```
+
+Если Deployment еще не создан, `kubectl diff` покажет добавление нового объекта. Если объект уже существует, команда поможет понять, какие поля изменятся после `apply`.
+
+Важно: `kubectl diff` может завершиться с exit code `1`, если отличия найдены. В данном случае это не поломка, а нормальный сигнал "diff не пустой".
 
 ## Применение manifest
 
@@ -333,7 +466,7 @@ kdl-nginx-deployment   3/3     3            3           ...
 Посмотри все основные объекты:
 
 ```bash
-kubectl -n kdl-lab07 get deployment,replicaset,pod -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get deployment,replicaset,pod -l kdl/component=deployment
 ```
 
 Ожидаем увидеть:
@@ -353,7 +486,7 @@ pod/kdl-nginx-deployment-...
 Посмотри один Pod:
 
 ```bash
-kubectl -n kdl-lab07 get pod -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get pod -l kdl/component=deployment
 ```
 
 Выбери имя одного Pod и выполни:
@@ -374,7 +507,7 @@ metadata:
 Теперь посмотри ReplicaSet:
 
 ```bash
-kubectl -n kdl-lab07 get replicaset -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get replicaset -l kdl/component=deployment
 ```
 
 Выбери имя ReplicaSet и выполни:
@@ -411,9 +544,28 @@ kubectl -n kdl-lab07 describe deployment kdl-nginx-deployment
 
 Особенно важно читать `Events`. Там видно, какой ReplicaSet был создан и как менялось количество Pod.
 
+## Conditions Deployment
+
+У Deployment есть status conditions. Они отвечают не на вопрос "какой YAML мы хотели", а на вопрос "что сейчас происходит с rollout".
+
+Посмотри conditions коротко:
+
+```bash
+kubectl -n kdl-lab07 get deployment kdl-nginx-deployment \
+  -o jsonpath='{range .status.conditions[*]}{.type}{"="}{.status}{" reason="}{.reason}{" message="}{.message}{"\n"}{end}'
+```
+
+Обычно полезны:
+
+- `Available` - есть ли минимально доступные Pod;
+- `Progressing` - продвигается ли rollout;
+- `ReplicaFailure` - были ли проблемы при создании Pod.
+
+Если rollout завис, сначала смотри `Conditions`, потом `Events`, потом переходи к ReplicaSet и Pod.
+
 ## Стратегия обновления
 
-По умолчанию Deployment использует стратегию `RollingUpdate`.
+Deployment обычно использует стратегию `RollingUpdate`. В нашем manifest она указана явно, чтобы студент видел не только результат, но и настройку, которая за него отвечает.
 
 Это значит, что при изменении Pod template Kubernetes не удаляет сразу все старые Pod. Он постепенно создает новые Pod и уменьшает количество старых.
 
@@ -461,6 +613,20 @@ image: nginx:1.27.5-alpine
 image: nginx:1.28.0-alpine
 ```
 
+И заодно поменяй version label внутри `spec.template.metadata.labels`:
+
+```yaml
+kdl/version: "v1"
+```
+
+на:
+
+```yaml
+kdl/version: "v2"
+```
+
+Обрати внимание: мы меняем label в Pod template, но не меняем `spec.selector.matchLabels`. Selector должен оставаться стабильным, иначе Deployment может потерять связь с управляемыми Pod.
+
 Перед применением выполни dry-run:
 
 ```bash
@@ -472,6 +638,14 @@ kubectl apply --dry-run=server -f labs/lab-07-kubernetes_api_basics/manifests/05
 ```bash
 kubectl apply -f labs/lab-07-kubernetes_api_basics/manifests/05-deployment-nginx.yaml
 ```
+
+Если хочешь увидеть rollout вживую, перед `apply` можно открыть второй терминал:
+
+```bash
+kubectl -n kdl-lab07 get replicaset,pod -l kdl/component=deployment -w
+```
+
+Во время обновления будет видно, как появляется новый ReplicaSet, новые Pod проходят readiness, а старый ReplicaSet уменьшается до нуля.
 
 Проверка rollout:
 
@@ -490,7 +664,7 @@ deployment "kdl-nginx-deployment" successfully rolled out
 Посмотри ReplicaSet:
 
 ```bash
-kubectl -n kdl-lab07 get replicaset -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get replicaset -l kdl/component=deployment
 ```
 
 Теперь должно быть минимум два ReplicaSet:
@@ -581,7 +755,7 @@ kubectl apply -f labs/lab-07-kubernetes_api_basics/manifests/05-deployment-nginx
 Проверка:
 
 ```bash
-kubectl -n kdl-lab07 get deployment,replicaset,pod -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get deployment,replicaset,pod -l kdl/component=deployment
 ```
 
 ### Вариант 2. Императивно через kubectl scale
@@ -599,7 +773,7 @@ kubectl -n kdl-lab07 scale deployment/kdl-nginx-deployment --replicas=2
 ## Проверка Pod после масштабирования
 
 ```bash
-kubectl -n kdl-lab07 get pods -l app.kubernetes.io/name=nginx -o wide
+kubectl -n kdl-lab07 get pods -l kdl/component=deployment -o wide
 ```
 
 Обрати внимание:
@@ -616,8 +790,8 @@ kubectl -n kdl-lab07 get pods -l app.kubernetes.io/name=nginx -o wide
 ```bash
 kubectl -n kdl-lab07 get deployment kdl-nginx-deployment
 kubectl -n kdl-lab07 describe deployment kdl-nginx-deployment
-kubectl -n kdl-lab07 get replicaset -l app.kubernetes.io/name=nginx
-kubectl -n kdl-lab07 get pods -l app.kubernetes.io/name=nginx -o wide
+kubectl -n kdl-lab07 get replicaset -l kdl/component=deployment
+kubectl -n kdl-lab07 get pods -l kdl/component=deployment -o wide
 kubectl -n kdl-lab07 describe pod <pod-name>
 kubectl -n kdl-lab07 logs <pod-name>
 kubectl -n kdl-lab07 get events --sort-by=.lastTimestamp
@@ -711,7 +885,7 @@ kubectl -n kdl-lab07 delete deployment kdl-nginx-deployment
 Проверка:
 
 ```bash
-kubectl -n kdl-lab07 get deployment,replicaset,pod -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get deployment,replicaset,pod -l kdl/component=deployment
 ```
 
 Rollback plan:
@@ -724,7 +898,7 @@ kubectl apply -f labs/lab-07-kubernetes_api_basics/manifests/05-deployment-nginx
 
 ```bash
 kubectl -n kdl-lab07 rollout status deployment/kdl-nginx-deployment
-kubectl -n kdl-lab07 get deployment,replicaset,pod -l app.kubernetes.io/name=nginx
+kubectl -n kdl-lab07 get deployment,replicaset,pod -l kdl/component=deployment
 ```
 
 ## Что важно понять
@@ -749,24 +923,27 @@ Kubernetes abstractions заканчиваются там, где kubelet про
 
 Выполни по шагам:
 
-1. Создай manifest `05-deployment-nginx.yaml`.
-2. Выполни server-side dry-run.
-3. Примени manifest.
-4. Проверь Deployment.
-5. Проверь ReplicaSet.
-6. Проверь Pod.
-7. Найди ownerReferences у Pod и ReplicaSet.
-8. Измени image в manifest.
-9. Выполни dry-run.
-10. Примени manifest.
-11. Посмотри rollout status.
-12. Посмотри rollout history.
-13. Выполни rollback.
-14. Проверь image после rollback.
-15. Масштабируй Deployment декларативно через manifest.
-16. Проверь, сколько Pod стало.
-17. Удали Deployment через dry-run и реальное удаление.
-18. Восстанови Deployment через manifest.
+1. Открой или создай manifest `05-deployment-nginx.yaml`.
+2. Посмотри структуру Deployment через `kubectl explain`.
+3. Выполни server-side dry-run.
+4. Посмотри `kubectl diff`.
+5. Примени manifest.
+6. Проверь Deployment.
+7. Проверь ReplicaSet.
+8. Проверь Pod.
+9. Найди ownerReferences у Pod и ReplicaSet.
+10. Посмотри `describe deployment` и `Conditions`.
+11. Измени image и `kdl/version` в manifest.
+12. Выполни dry-run.
+13. Примени manifest.
+14. Посмотри rollout status.
+15. Посмотри rollout history.
+16. Выполни rollback.
+17. Проверь image после rollback.
+18. Масштабируй Deployment декларативно через manifest.
+19. Проверь, сколько Pod стало.
+20. Удали Deployment через dry-run и реальное удаление.
+21. Восстанови Deployment через manifest.
 
 ## Что прислать в lab journal
 
@@ -774,15 +951,17 @@ Kubernetes abstractions заканчиваются там, где kubelet про
 
 ```text
 1. Команду dry-run и результат.
-2. Команду apply и результат.
-3. Вывод get deployment.
-4. Вывод get replicaset.
-5. Вывод get pods -o wide.
-6. Краткое объяснение связи Deployment -> ReplicaSet -> Pod.
-7. Вывод rollout status после обновления image.
-8. Вывод rollout history.
-9. Вывод image до rollback и после rollback.
-10. Краткий вывод: зачем нужен Deployment, если уже есть ReplicaSet.
+2. Вывод или краткое описание `kubectl diff`.
+3. Команду apply и результат.
+4. Вывод get deployment.
+5. Вывод get replicaset.
+6. Вывод get pods -o wide.
+7. Краткое объяснение связи Deployment -> ReplicaSet -> Pod.
+8. Краткое объяснение, зачем нужны `strategy` и `readinessProbe`.
+9. Вывод rollout status после обновления image.
+10. Вывод rollout history.
+11. Вывод image до rollback и после rollback.
+12. Краткий вывод: зачем нужен Deployment, если уже есть ReplicaSet.
 ```
 
 ## Критерии готовности
@@ -794,6 +973,9 @@ Kubernetes abstractions заканчиваются там, где kubelet про
 - как Deployment связан с ReplicaSet;
 - как ReplicaSet связан с Pod;
 - что такое Pod template;
+- почему selector должен быть стабильным;
+- зачем Deployment strategy влияет на обновление;
+- зачем readinessProbe важен для rolling update;
 - почему изменение image запускает rollout;
 - зачем Kubernetes хранит старые ReplicaSet;
 - как посмотреть rollout status;
